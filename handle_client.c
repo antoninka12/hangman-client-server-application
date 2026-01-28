@@ -6,6 +6,7 @@
 #include "new_clients.h"
 #include "tlv.h"
 #include "protocol.h"
+#include "game.h" 
 
 void handle_client_input(int desc2)
 {
@@ -74,13 +75,10 @@ void handle_client_input(int desc2)
             {sendtlv(desc2, TLV_MSG, "ERROR: not logged in\n", 22);
                 //continue;
             }
-            else if (client_set_ready(desc2) < 0){
-                sendtlv(desc2, TLV_MSG, "ERROR: tu bedzie czy w grze czy nie \n", 35);
-                //continue;
-            }
-                
+            
             else{
-                sendtlv(desc2,TLV_MSG, "WAIT: joining...\n", 18);
+               // sendtlv(desc2,TLV_MSG, "WAIT: joining...\n", 18);
+                start_game(desc2); //funkcja z game.c zaczynanie gry
                 }
             break;
             }
@@ -106,7 +104,7 @@ void handle_client_input(int desc2)
                     
             else {
                     letter = tolower((unsigned char)letter);
-                    sendtlv(desc2,TLV_MSG,"ERROR: game not implemented\n", 29);
+                    guess(desc2, letter); //funkcja z game.c
                 }
                 break;
             } 
