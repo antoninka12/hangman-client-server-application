@@ -7,6 +7,7 @@
 #include "tlv.h"
 #include "protocol.h"
 #include "game.h" 
+#include "score.h"
 
 void handle_client_input(int desc2)
 {
@@ -108,6 +109,19 @@ void handle_client_input(int desc2)
                 }
                 break;
             } 
+            case TLV_SCORE: {
+                if (len == 5 && memcmp(value, "score", 5) == 0) {
+                    if (!c->logged_in) {
+                        sendtlv(desc2, TLV_MSG, "ERROR: not logged in\n", 22);
+                        break;
+                    }
+
+                    score_print_all(desc2);   // wysyła całą tabelę wyników
+                    break;
+                }
+                break;
+            }
+
             default: {
                 sendtlv(desc2, TLV_MSG,"ERROR: unknown message\n", 24);
             }
