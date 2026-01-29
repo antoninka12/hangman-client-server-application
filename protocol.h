@@ -3,22 +3,21 @@
 
 #include <stdint.h>
 
-/* typy komunikatów klient -> serwer */
+//tytpt
 #define TLV_LOGIN   1
 #define TLV_JOIN    2
 #define TLV_GUESS   3
 #define TLV_WRONG   4
 
-/* typy komunikatów serwer -> klient */
 #define TLV_MSG     100
 
-/* nagłówek TLV */
+//nagłówek
 struct tlv_hdr {
     uint16_t type;
     uint16_t length;
 };
 
-/* limity pomocnicze */
+//limity
 #define MAX_TLV_VALUE 256
 #define MAX_USERNAME  32
 
