@@ -19,7 +19,7 @@
 #include <ctype.h> //do liter i gry, zmiana wielkosci np
 #include <poll.h> //do poll - wspolbieznosc
 #include "game.h" //logika gry
-
+#include <netdb.h> //do getaddrinfo
 
 #define LISTEN 10 //kolejka dla listen
 #define MAXEVENTS 2000 //max liczba deskryptorów w pollu
@@ -46,17 +46,60 @@ int main(int argc, char **argv)
                 perror("socket");
                 return 1;
         }
-        //struktura adresowa
-        bzero(&servaddr, sizeof(servaddr));
-        servaddr.sin6_family = AF_INET6;
-        servaddr.sin6_addr   = in6addr_any;
-        servaddr.sin6_port   = htons(1234);
 
-        //bind
-        if (bind(desc1, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
-                perror("bind");
+        //REUSEADDR-warto
+        int one = 1;
+        if (setsockopt(desc1, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0) {
+                perror("setsockopt SO_REUSEADDR");
+                close(desc1);
                 return 1;
         }
+
+        //DNS
+        struct addrinfo hints, *res = NULL, *p = NULL; //miejsce na wynik dns
+        char portstr[6]; //zmiana numeru portu na tekst
+        snprintf(portstr, sizeof(portstr), "%u", 1234);
+
+        memset(&hints, 0, sizeof(hints));
+        hints.ai_family   = AF_INET6;       // używamy IPv6 jak w Twoim kodzie (AF_INET6)
+        hints.ai_socktype = SOCK_STREAM;    // TCP
+        hints.ai_flags    = AI_PASSIVE;     // gdy host == NULL -> bind na "::" (wszystkie interfejsy)
+
+        // host do binda: jeśli podano argument, użyj go; jak nie -> NULL (czyli "::")
+        const char *bind_host;
+
+        if (argc >= 2) {
+                bind_host = argv[1];   //nazwa hosta
+        } else {
+                bind_host = NULL; //brak argumentu bind na ::
+        }
+
+
+        int gai_rc = getaddrinfo(bind_host, portstr, &hints, &res);
+        if (gai_rc != 0) {
+                fprintf(stderr, "getaddrinfo %s\n", gai_strerror(gai_rc));
+                close(desc1);
+                return 1;
+        }
+
+        int bind_ok = 0;
+        for (p = res; p != NULL; p = p->ai_next) {//for na liste adresów zwróconą przez dns
+                memcpy(&servaddr, p->ai_addr, sizeof(servaddr));
+
+                if (bind(desc1, p->ai_addr, p->ai_addrlen) == 0) {
+                        bind_ok = 1; //jeśli bind się udał
+                        break;
+                }
+        }
+
+        freeaddrinfo(res);
+
+        if (!bind_ok) { //jak bind się nie udał na żadnym adresie
+                perror("bind");
+                close(desc1);
+                return 1;
+        }
+
         //listen
         if (listen(desc1, LISTEN) < 0) {
                 perror("listen");
