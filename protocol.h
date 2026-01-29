@@ -8,6 +8,7 @@
 #define TLV_JOIN    2
 #define TLV_GUESS   3
 #define TLV_WRONG   4
+#define TLV_SCORE   5   
 
 #define TLV_MSG     100
 

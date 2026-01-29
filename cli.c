@@ -66,6 +66,8 @@ int main(int argc, char **argv){
 			sendtlv(desc, TLV_GUESS, &letter, 1);
 		} else if (strncmp(buf, "WRONG", 5) == 0) {
 			sendtlv(desc, TLV_WRONG, NULL, 0);
+		} else if (strncmp(buf, "SCORE", 5) == 0) {
+			sendtlv(desc, TLV_SCORE, "score", 5);
 		}
 		else {
 			printf("Unknown command\n");
