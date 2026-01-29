@@ -7,6 +7,7 @@
 #define TLV_LOGIN   1
 #define TLV_JOIN    2
 #define TLV_GUESS   3
+#define TLV_WRONG   4
 
 /* typy komunikatów serwer -> klient */
 #define TLV_MSG     100

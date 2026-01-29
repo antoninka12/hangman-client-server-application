@@ -45,7 +45,7 @@ int start_game(int desc2){
 
     if(games.active){ //jesli trwa inna gra
         sendtlv(desc2, TLV_MSG, "Wait: game already in progress\n", 32);
-        
+        return 0;
     }
 
     if(games.player1_fd==0){
@@ -69,6 +69,9 @@ int start_game(int desc2){
         games.wrong_guesse=0;
         games.active=1; //ustawienie ze gra trwa
 
+        games.wrong_count = 0;
+        games.wrong_letters[0] = '\0';
+
         sendtlv(games.player1_fd, TLV_MSG, "Starting game!!!\n", 18);
         sendtlv(games.player2_fd, TLV_MSG, "Starting game!!!\n", 18);
         
@@ -84,6 +87,12 @@ int start_game(int desc2){
 }
 
 void guess(int desc2, char letter){
+
+    if (!isalpha((unsigned char)letter)) {   // ignoruj nie-litery
+        return;
+    }
+
+    letter = (char)tolower((unsigned char)letter);
     if(!games.active){
         sendtlv(desc2, TLV_MSG, "ERROR: not in game?\n", 20);
         return;
@@ -92,7 +101,7 @@ void guess(int desc2, char letter){
         sendtlv(desc2, TLV_MSG, "ERROR: you didnt start the game\n", 32);
         return;
     }
-    letter=tolower(letter); //mala litera0
+
     int correct=0;
 
     for(size_t i=0; i<strlen(games.word); i++){
@@ -102,7 +111,24 @@ void guess(int desc2, char letter){
         }
     }
     if(!correct){
-        games.wrong_guesse++;
+
+
+        int already = 0;
+        for (int j = 0; j < games.wrong_count; j++) {
+            if (games.wrong_letters[j] == letter) {
+                already = 1;
+                break;
+            }
+        }
+
+        if (!already) {
+            games.wrong_guesse++;
+
+            if (games.wrong_count < (int)sizeof(games.wrong_letters) - 1) {
+                games.wrong_letters[games.wrong_count++] = letter;
+                games.wrong_letters[games.wrong_count] = '\0';
+        }
+    }
     }
     //wyslanie stanu gry
     send_game();
@@ -135,8 +161,18 @@ void game_reset(void){
 
 void send_game(){
     char buff[256];
-    snprintf(buff, sizeof(buff), "Word: %s Wrong guesses: %d/%d\n",
-             games.guessed, games.wrong_guesse, MAX_WRONG_GUESSES);
+
+
+    snprintf(buff, sizeof(buff),
+             "Word: %s Wrong guesses: %d/%d WRONG: %s\n",
+             games.guessed,
+             games.wrong_guesse,
+             MAX_WRONG_GUESSES,
+             (games.wrong_count > 0) ? games.wrong_letters : "-");
     sendtlv(games.player1_fd,TLV_MSG, buff,strlen(buff));
     sendtlv(games.player2_fd,TLV_MSG, buff,strlen(buff));
 }
+
+
+
+

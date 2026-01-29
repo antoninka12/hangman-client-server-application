@@ -14,6 +14,10 @@ struct game {
     char word[MAX_WORD_LEN];    //haslo do zgadniecia
     char guessed[MAX_WORD_LEN]; //zgadywane 
     int wrong_guesse;          //liczba błędów
+    
+    int wrong_count;          // liczba błędów
+    char wrong_letters[32];   // tablica na błędy
+
 };
 
 void game_init(void);
@@ -23,6 +27,7 @@ void game_reset(void);
 int start_game(int desc2);
 void guess(int desc2, char letter);
 int all_guessed(void);
+
 
 
 #endif

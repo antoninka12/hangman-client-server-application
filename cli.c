@@ -64,6 +64,8 @@ int main(int argc, char **argv){
 		else if (strncmp(buf, "GUESS ", 6) == 0) {
 			char letter = buf[6];
 			sendtlv(desc, TLV_GUESS, &letter, 1);
+		} else if (strncmp(buf, "WRONG", 5) == 0) {
+			sendtlv(desc, TLV_WRONG, NULL, 0);
 		}
 		else {
 			printf("Unknown command\n");
