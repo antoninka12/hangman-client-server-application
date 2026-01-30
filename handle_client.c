@@ -16,10 +16,12 @@ void handle_client_input(int desc2)
     //char username[32]; //LOGIN
     //char letter; //litera do GUESS
     //char extra; //do sprawdzania czy jest wiecej niz jedna litera w GUESS
-    uint16_t type;
+
+    uint16_t type; //bo typy to 1-5 i 100 w protocol.h
     uint8_t value[MAX_TLV_VALUE];
     //value to buf w tlv.c/.h, zapisuje bajty do tej tablicy recv_tlv
-    int len = recv_tlv(desc2, &type, value, sizeof(value));
+    
+    int len = recv_tlv(desc2, &type, value, sizeof(value)); //tu dostajemy typ i wartosc
     if (len < 0) {
         close(desc2);
         client_remove(desc2);

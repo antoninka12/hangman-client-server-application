@@ -4,8 +4,11 @@
 #include <string.h>
 #include <arpa/inet.h>
 
+//typ **** lenghth **** value - TLV
+
 //read nie zawsze w tcp odsyła całosc bajtów na raz, wiec trzeba funkcje która wywoła read tyle razy, az otrzyma wszystkie potrzebne bajty
 //bo robimy to binarnie wiec nie chcemy zeby nam ucielo
+//bo tcp- strumien bajtóq, dba o kolejnosc ale nie o podzial na wiadomosci
 static ssize_t readtlv(int desc2, void *buf, size_t n){
     ssize_t amount=n; //ilosc bajtów jaka została do odczytania 
     ssize_t r;

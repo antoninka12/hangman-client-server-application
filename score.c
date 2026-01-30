@@ -23,7 +23,7 @@ static int find_login(const char *login)
     {
         if (g_db[i].used == 0) //czy miejsce tablicy jest zajęte
             continue;
-
+            
         if (strcmp(g_db[i].login, login) == 0) //czy login użytkownika już istnieje
             return i;
     }
@@ -130,7 +130,7 @@ void score_print_all(int fd)
 {
     pthread_mutex_lock(&g_mtx);
 
-    int any = 0; //czy jest jakis wynik
+ int any = 0; //czy jest jakis wynik
 
     for (int i = 0; i < MAX_PLAYERS; i++) {
         if (!g_db[i].used) continue;
@@ -142,7 +142,7 @@ void score_print_all(int fd)
         sendtlv(fd, TLV_MSG, buf, (int)strlen(buf));
     }
 
-    if (!any) { // brak wpisów
+      if (!any) { // brak wpisów
         sendtlv(fd, TLV_MSG, "No scores yet.\n", 15);
     }
     pthread_mutex_unlock(&g_mtx);

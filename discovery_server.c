@@ -31,7 +31,7 @@ void multicast_discovery_server(void)
     addr.sin6_addr   = in6addr_any;// do słuchania na wszystkich adresach
 
         //bind z konkretnej struktury adresowej: struct sockaddr_in6
-    if(bind(s, (struct sockaddr*)&addr, sizeof(addr))<0){
+    if(bind(s, (struct sockaddr*)&addr, sizeof(addr))<0){ //przypisanie adresu do gniazda
         perror("bind error");
         close(s);
         return;

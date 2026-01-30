@@ -35,14 +35,14 @@ int discover_server(struct sockaddr_in6 *servaddr)
 
     //wysylanie jednego datagramu tylko, dla gniazda s-udp : ODKRYWANIE, bierze adres i port ze struktury
     sendto(s, "ODKRYWANIE", 10, 0,
-           (struct sockaddr*)&mcast_addr, sizeof(mcast_addr));
+           (struct sockaddr*)&mcast_addr, sizeof(mcast_addr)); //sendto- pod konkretny adres
     printf("odkrywanie serwera przez multicast\n");
     fflush(stdout);
 
    //odbieram jeden datagram, dane->bufora, zapisanie adresy nadawcy do struktury
     //potrzebujemy głownie adresu servera a nie samej wiadomosci
    len = sizeof(*servaddr);
-    if (recvfrom(s, buf, sizeof(buf), 0,
+    if (recvfrom(s, buf, sizeof(buf), 0, //bo potrzeubujemy adresu serwera
                  (struct sockaddr*)servaddr, &len) < 0) {
         perror("recvfrom() error");
         close(s);  //gniazdo potrzebujemy jednorazowo, do znalezienia servera wiec zamykamy w kazdym przypadku

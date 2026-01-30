@@ -36,7 +36,7 @@ int main(int argc, char **argv){
         return 1;
     }
 
-    if (connect(desc, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
+    if (connect(desc, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) { //uzupelnia adres serwera - wziety z mulitcastu
         perror("connect");
         close(desc);
         return 1;

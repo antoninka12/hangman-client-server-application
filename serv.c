@@ -37,10 +37,16 @@ int main(int argc, char **argv)
         struct pollfd client[MAXEVENTS]; //tablica opisów deskryptorów dla poll
         int i, maxi, nready;
 
-        if (daemon_init("hangman_server") < 0) {
+        /****************************************************************************** */
+        /****************************************************************************** */
+        /****************************************************************************** */
+        /****************************************************************************** */
+        if (daemon_init("hangman_server") < 0) { //TO OGARNIJ TO DO DEMNONA - MOZESZ ZMIENIC NA INNA NAZWE
                 exit(1);
         }
-
+        /****************************************************************************** */
+        /****************************************************************************** */
+        /****************************************************************************** */
         
 
         clients_init(); //funckja z new clients, czyszczenie tablicy klientow
@@ -67,8 +73,8 @@ int main(int argc, char **argv)
         snprintf(portstr, sizeof(portstr), "%u", 1234);
 
         memset(&hints, 0, sizeof(hints));
-        hints.ai_family   = AF_INET6;       // używamy IPv6 jak w Twoim kodzie (AF_INET6)
-        hints.ai_socktype = SOCK_STREAM;    // TCP
+        hints.ai_family   = AF_INET6;      
+        hints.ai_socktype = SOCK_STREAM;    
         hints.ai_flags    = AI_PASSIVE;     // gdy host == NULL -> bind na "::" (wszystkie interfejsy)
 
         // host do binda: jeśli podano argument, użyj go; jak nie -> NULL (czyli "::")
@@ -114,7 +120,7 @@ int main(int argc, char **argv)
 
         //multicast w osobyn procesie 
         if (fork() == 0) {
-                multicast_discovery_server();
+                multicast_discovery_server(); //bierze adres serwera 
                 exit(0);
         }
 

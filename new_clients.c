@@ -8,11 +8,15 @@
     int ready;                      
     char username[USERNAME_LEN];    
 };*/
+
+//tablica klientow, ktorzy sa polaczeni
 static struct client clients[MAX_CLIENTS];
 
 void clients_init(void){
    memset(clients, 0, sizeof(clients));
 }
+
+//wpisuje do tablicy ze jest kloient, jego deskryptor, ale nie zalogowany i nie w grze
 int client_add(int fd){
      for (int i = 0; i < MAX_CLIENTS; i++) {
         if (!clients[i].used) {
@@ -21,12 +25,13 @@ int client_add(int fd){
             clients[i].logged_in = 0;
             clients[i].ready = 0;
             clients[i].username[0] = '\0';
-            return 0;   // OK
+            return 0;   
         }
     }
     return -1;
 }
 
+//usuwanie
 void client_remove(int fd){
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if (clients[i].used && clients[i].fd==fd) {
@@ -38,6 +43,8 @@ void client_remove(int fd){
         }
     }
 }
+
+//zwraca strukture klienta
 struct client *client_get(int fd)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -58,6 +65,7 @@ int username_taken(const char *username){
     return 0; //wolny
 }
 
+//logowanie, wpisywanie do struktury klienta jego loginu
 int client_login(int fd, const char *username)
 {
     for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -75,6 +83,8 @@ int client_login(int fd, const char *username)
     }
     return -1;
 }
+
+//wylogowanie
 void client_logout(int fd){
     for (int i = 0; i < MAX_CLIENTS; i++) {
         if(clients[i].used&&clients[i].fd==fd){
@@ -86,6 +96,7 @@ void client_logout(int fd){
     }
 }
 
+//to po join, jak juz dolaczamy
 int client_set_ready(int fd)
 {
     for (int i = 0; i< MAX_CLIENTS; i++) {
