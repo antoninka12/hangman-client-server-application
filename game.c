@@ -22,41 +22,44 @@ struct game {
 
 static struct game games; //pojedyncza gra 
 
+//FD do deskryptora drugiego gracza
 static int other_player_fd(int fd) { //zwraca deskryptor drugiego gracza
-    if (fd == games.player1_fd) return games.player2_fd;
-    if (fd == games.player2_fd) return games.player1_fd;
+    if (fd == games.player1_fd) return games.player2_fd; //jeśli fd to player1 to zwraca player2
+    if (fd == games.player2_fd) return games.player1_fd; //jeśli fd to player2 to zwraca player1
     return 0;
 }
 
-static void send_turn_info(void) { //wysyła informację o ruchu
-    char msg[64];
-    snprintf(msg, sizeof(msg), "Turn: fd=%d\n", games.turn_fd);
-    sendtlv(games.player1_fd, TLV_MSG, msg, (int)strlen(msg));
-    sendtlv(games.player2_fd, TLV_MSG, msg, (int)strlen(msg));
+//wysyła informację o ruchu
+static void send_turn_info(void) { 
+    char msg[64]; //bufor na wiadomość
+    snprintf(msg, sizeof(msg), "the turn of the player with the descriptor fd=%d\n", games.turn_fd); //tworzenie wiadomości z deskryptorem gracza
+    sendtlv(games.player1_fd, TLV_MSG, msg, (int)strlen(msg));//wysyłanie wiadomości do player1
+    sendtlv(games.player2_fd, TLV_MSG, msg, (int)strlen(msg)); //wysyłanie wiadomości do player2
 }
 
-static void switch_turn(void) { //zmienia ruch na drugiego gracza
-    int other = other_player_fd(games.turn_fd);
-    if (other != 0) games.turn_fd = other;
+//zmienia ruch na drugiego gracza
+static void switch_turn(void) { 
+    int other = other_player_fd(games.turn_fd); //pobiera deskryptor drugiego gracza z wcześniejszej funkcji
+    if (other != 0) games.turn_fd = other; //jeśli drugi gracz istnieje to zmienia ruch na niego
 }
 
 //stan logiczny graczy
-static char g_p1_login[LOGIN_MAX] = {0}; 
-static char g_p2_login[LOGIN_MAX] = {0};   
+static char g_p1_login[LOGIN_MAX] = {0}; //login pierwszego gracza
+static char g_p2_login[LOGIN_MAX] = {0};  //login drugiego gracza
 
 
 void game_set_login(int fd, const char *login) { //podpina login do gracza
-    if (!login || login[0] == '\0') return;      
-    if (fd == games.player1_fd) {                
-        strncpy(g_p1_login, login, LOGIN_MAX - 1); 
-        g_p1_login[LOGIN_MAX - 1] = '\0';        
-    } else if (fd == games.player2_fd) {         
+    if (!login || login[0] == '\0') return;    //jeśli login jest pusty to wychodzi   
+    if (fd == games.player1_fd) { //jeśli fd to player1 to ustawia login 1 gracza        
+        strncpy(g_p1_login, login, LOGIN_MAX - 1); //kopiuje login do g_p1_login (wcześniejsza funkcja)
+        g_p1_login[LOGIN_MAX - 1] = '\0'; //dodaje null na koniec
+    } else if (fd == games.player2_fd) { //to samo dla drugiego gracza         
         strncpy(g_p2_login, login, LOGIN_MAX - 1);
         g_p2_login[LOGIN_MAX - 1] = '\0';        
     }
 } 
 
-static const char *word_list[] = {
+static const char *word_list[] = { //lista słów do gry
     "gra",
     "programowanie", 
     "sieci",
@@ -70,7 +73,7 @@ static const char *word_list[] = {
     "telefon"
 };
 
-void game_init(void) {
+void game_init(void) { //inicjalizacja gry
     memset(&games, 0, sizeof(games));
     srand(time(NULL)); //inicjalizacja rand
     score_init("scores.dat"); //inicjalizacja score z pliku
@@ -83,12 +86,12 @@ int start_game(int desc2){
         return 0;
     }
 
-    if(games.player1_fd==0){
+    if(games.player1_fd==0){ //jesli nie ma 1 gracza to dodajemy
         games.player1_fd=desc2;
         sendtlv(desc2, TLV_MSG, "Wait: waiting for another player...\n", 36);
         return 0;
     }
-    else if(games.player2_fd==0 && desc2 != games.player1_fd){
+    else if(games.player2_fd==0 && desc2 != games.player1_fd){ //jesli jest 1 gracz a nie ma 2 to dodajemy 2 gracza
         games.player2_fd=desc2;
        
         //wybór słowa
@@ -130,7 +133,7 @@ void guess(int desc2, char letter){
         return;
     }
 
-    letter = (char)tolower((unsigned char)letter);
+    letter = (char)tolower((unsigned char)letter);// zamiana na małą literę
     // czy litera już została użyta (dobra)
     for (size_t i = 0; i < strlen(games.guessed); i++) {
         if (games.guessed[i] == letter) {
@@ -146,11 +149,11 @@ void guess(int desc2, char letter){
             return;
         }
     }
-    if(!games.active){
+    if(!games.active){ //sprawdzenie czy gra trwa
         sendtlv(desc2, TLV_MSG, "ERROR: not in game?\n", 20);
         return;
     }
-    if(desc2 != games.player1_fd && desc2 != games.player2_fd){
+    if(desc2 != games.player1_fd && desc2 != games.player2_fd){ //sprawdzenie czy gracz jest w grze
         sendtlv(desc2, TLV_MSG, "ERROR: you didnt start the game\n", 32);
         return;
     }
@@ -160,19 +163,20 @@ void guess(int desc2, char letter){
         return;
     }
 
-    int correct = 0;
-    int already = 0;
+    int correct = 0; //czy poprawna litera
+    int already = 0; //czy już była użyta
 
 
-    for(size_t i=0; i<strlen(games.word); i++){
-        if(games.word[i]==letter && games.guessed[i]=='_'){
-            games.guessed[i]=letter;
+    for(size_t i=0; i<strlen(games.word); i++){ //sprawdzanie czy litera jest w słowie
+        if(games.word[i]==letter && games.guessed[i]=='_'){ //jeśli litera jest w słowie i nie była wcześniej zgadnięta
+            games.guessed[i]=letter; 
             correct=1; //ustawianie na 1, bo pozniej boolem sprawdzamy
         }
     }
 
-        if (!correct) {
+        if (!correct) { //jeśli litera niepoprawna
 
+        // czy litera już została użyta (zła)
         for (int j = 0; j < games.wrong_count; j++) {
             if (games.wrong_letters[j] == letter) {
                 already = 1;
@@ -180,34 +184,35 @@ void guess(int desc2, char letter){
             }
         }
 
-        if (already) {
+        if (already) { //jeśli już była użyta
             sendtlv(desc2, TLV_MSG, "You already tried this letter!\n", 30);
             return;
         }
 
-        games.wrong_guesse++;
+        games.wrong_guesse++; //zwiększenie liczby błędów
 
+        //dodanie litery do tablicy złych liter
         if (games.wrong_count < (int)sizeof(games.wrong_letters) - 1) {
-            games.wrong_letters[games.wrong_count++] = letter;
-            games.wrong_letters[games.wrong_count] = '\0';
+            games.wrong_letters[games.wrong_count++] = letter; //dodanie litery i zwiększenie licznika
+            games.wrong_letters[games.wrong_count] = '\0'; //dodanie null na koniec
         }
 
-        sendtlv(desc2, TLV_MSG, "Wrong letter!\n", 14);
+        sendtlv(desc2, TLV_MSG, "Wrong letter!\n", 14); //wysłanie info o złej literze
     }
     else {
-        sendtlv(desc2, TLV_MSG, "Good guess!\n", 12);
+        sendtlv(desc2, TLV_MSG, "Good guess!\n", 12); //wysłanie info o dobrej literze
     }
 
     //wyslanie stanu gry
     send_game();
     if(all_guessed()){
         //zapis score
-        uint32_t s = score_calc((int)strlen(games.word), games.wrong_guesse); 
-        if (g_p1_login[0]) score_update_best(g_p1_login, s);      
-        if (g_p2_login[0]) score_update_best(g_p2_login, s);           
+        uint32_t s = score_calc((int)strlen(games.word), games.wrong_guesse); //obliczenie score
+        if (g_p1_login[0]) score_update_best(g_p1_login, s); //zapis score dla 1 gracza
+        if (g_p2_login[0]) score_update_best(g_p2_login, s); //zapis score dla 2 gracza
 
-        sendtlv(games.player1_fd, TLV_MSG, "GAME OVER!! winner\n", 21);
-        sendtlv(games.player2_fd, TLV_MSG, "GAME OVER!! winner\n", 21);
+        sendtlv(games.player1_fd, TLV_MSG, "end of the game \n", 21); //wyslanie info o wygranej
+        sendtlv(games.player2_fd, TLV_MSG, "end of the game \n", 21);
         game_reset();
         return;
     }
@@ -217,8 +222,8 @@ void guess(int desc2, char letter){
         if (g_p1_login[0]) score_update_best(g_p1_login, s);                 
         if (g_p2_login[0]) score_update_best(g_p2_login, s); 
 
-        sendtlv(games.player1_fd, TLV_MSG, "GAME OVER!! too many wrong guesses\n", 36);
-        sendtlv(games.player2_fd, TLV_MSG, "GAME OVER!! too many wrong guesses\n", 36);
+        sendtlv(games.player1_fd, TLV_MSG, "game over! too many wrong guesses\n", 36);
+        sendtlv(games.player2_fd, TLV_MSG, "game over! too many wrong guesses\n", 36);
         game_reset();
         return;
     }
@@ -226,7 +231,7 @@ void guess(int desc2, char letter){
     send_turn_info(); //wyslanie info o ruchu
 }
 
-int all_guessed(void){
+int all_guessed(void){//sprawdzenie czy wszystkie litery zostały zgadnięte
     for(size_t i=0; i<strlen(games.word); i++){
         if(games.guessed[i]=='_'){
             return 0; //jesli jest gdzies _ to nie wszysrtkie zgadlismy
