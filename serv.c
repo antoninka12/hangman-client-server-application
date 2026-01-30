@@ -1,19 +1,19 @@
-#include        <sys/types.h>   /* basic system data types */
-#include        <sys/socket.h>  /* basic socket definitions */
-#include                <unistd.h>
-#include        <time.h>                /* old system? */
-#include        <netinet/in.h>  /* sockaddr_in{} and other Internet defns */
-#include        <arpa/inet.h>   /* inet(3) functions */
-#include        <errno.h>
-#include        <stdio.h>
-#include        <stdlib.h>
-#include        <string.h>
+#include <sys/types.h>   
+#include <sys/socket.h> 
+#include <unistd.h>
+#include <time.h> 
+#include <netinet/in.h>
+#include <arpa/inet.h> 
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "discovery_server.h"
 #include "new_clients.h"
 #include "handle_client.h"
 //#include <strings.h> jakby krzyczaolo na bzero
 
-#include <signal.h> //obsuga sigchild - juz nie potrzebna, chyba ze do multicastu ale to id
+#include <signal.h> //obsuga sigchild
 #include <sys/wait.h> //obsuga sigchild
 
 #include <ctype.h> //do liter i gry, zmiana wielkosci np
