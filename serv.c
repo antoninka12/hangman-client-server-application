@@ -37,16 +37,9 @@ int main(int argc, char **argv)
         struct pollfd client[MAXEVENTS]; //tablica opisów deskryptorów dla poll
         int i, maxi, nready;
 
-        /****************************************************************************** */
-        /****************************************************************************** */
-        /****************************************************************************** */
-        /****************************************************************************** */
-        if (daemon_init("hangman_server") < 0) { //TO OGARNIJ TO DO DEMNONA - MOZESZ ZMIENIC NA INNA NAZWE
+        if (daemon_init("hangman_server") < 0) { //demonizacja procesu, jeśli zrobimy ctrl+c to serwer dalej działa
                 exit(1);
         }
-        /****************************************************************************** */
-        /****************************************************************************** */
-        /****************************************************************************** */
         
 
         clients_init(); //funckja z new clients, czyszczenie tablicy klientow
@@ -59,7 +52,7 @@ int main(int argc, char **argv)
                 return 1;
         }
 
-        //REUSEADDR-warto
+        //REUSEADDR-warto ustawiona, zeby mozna bylo szybko restartowac serwer
         int one = 1;
         if (setsockopt(desc1, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)) < 0) {
                 perror("setsockopt SO_REUSEADDR");
@@ -69,13 +62,13 @@ int main(int argc, char **argv)
 
         //DNS
         struct addrinfo hints, *res = NULL, *p = NULL; //miejsce na wynik dns
-        char portstr[6]; //zmiana numeru portu na tekst
+        char portstr[6]; //zmiana numeru portu na tekst 1234->"1234"
         snprintf(portstr, sizeof(portstr), "%u", 1234);
 
         memset(&hints, 0, sizeof(hints));
         hints.ai_family   = AF_INET6;      
         hints.ai_socktype = SOCK_STREAM;    
-        hints.ai_flags    = AI_PASSIVE;     // gdy host == NULL -> bind na "::" (wszystkie interfejsy)
+        hints.ai_flags    = AI_PASSIVE;     // gdy host będzie NULL bind na "::" (wszystkie interfejsy)
 
         // host do binda: jeśli podano argument, użyj go; jak nie -> NULL (czyli "::")
         const char *bind_host;
@@ -87,7 +80,7 @@ int main(int argc, char **argv)
         }
 
 
-        int gai_rc = getaddrinfo(bind_host, portstr, &hints, &res);
+        int gai_rc = getaddrinfo(bind_host, portstr, &hints, &res); //pobieranie adresu do binda
         if (gai_rc != 0) {
                 fprintf(stderr, "getaddrinfo %s\n", gai_strerror(gai_rc));
                 close(desc1);
@@ -96,7 +89,6 @@ int main(int argc, char **argv)
 
         int bind_ok = 0;
         for (p = res; p != NULL; p = p->ai_next) {//for na liste adresów zwróconą przez dns
-                memcpy(&servaddr, p->ai_addr, sizeof(servaddr));
 
                 if (bind(desc1, p->ai_addr, p->ai_addrlen) == 0) {
                         bind_ok = 1; //jeśli bind się udał
@@ -104,7 +96,7 @@ int main(int argc, char **argv)
                 }
         }
 
-        freeaddrinfo(res);
+        freeaddrinfo(res); //zwalnianie pamieci po getaddrinfo
 
         if (!bind_ok) { //jak bind się nie udał na żadnym adresie
                 perror("bind");
@@ -125,7 +117,7 @@ int main(int argc, char **argv)
         }
 
         //poll - inicjalizacja
-        client[0].fd = desc1; //patrzy na gniazdo nasłuchujące
+        client[0].fd = desc1; //patrzy na gniazdo nasłuchujące, czeka na nowe polaczenia
         client[0].events = POLLIN; //dzieki temu przyjmowanie polaczen bedzie wykrywane
 
         for (i = 1; i < MAXEVENTS; i++)
@@ -136,7 +128,7 @@ int main(int argc, char **argv)
 
         while (1) {
                 //poll czeka na zdarzenia, blokuje sie do tego momentu
-                nready = poll(client, maxi + 1, -1);
+                nready = poll(client, maxi + 1, -1); //ile deskryptorów do sprawdzenia, -1 czeka bez limitu czasu
                 if (nready < 0) {
                         if (errno == EINTR) continue; //jesli przerwanie sygnałem to kontynuuj
                         perror("poll"); //inaczej -> blad
