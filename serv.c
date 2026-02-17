@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "discovery_server.h"
-#include "new_clients.h"
+#include "new_clients.h" 
 #include "handle_client.h"
 //#include <strings.h> jakby krzyczaolo na bzero
 
