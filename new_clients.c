@@ -2,7 +2,7 @@
 #include <string.h>
 
 /*struct client {
-    int fd;                         // deskryptor gniazda
+    int fd;                         // deskryptor gniazda 
     int used;                       
     int logged_in;                  
     int ready;                      
