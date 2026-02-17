@@ -1,7 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <stdint.h> 
+#include <stdint.h>  
 
 #define MAX_WORD_LEN 32
 #define MAX_WRONG_GUESSES 7
