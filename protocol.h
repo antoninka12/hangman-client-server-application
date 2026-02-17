@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-//typ
+//typ 
 #define TLV_LOGIN   1
 #define TLV_JOIN    2
 #define TLV_GUESS   3
