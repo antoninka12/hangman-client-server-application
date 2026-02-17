@@ -8,15 +8,7 @@ gcc -o klient cli.c discovery.c tlv.c
 uruchomienie klienta:
 ./klient 
 
-Po tym powinnismy złapac połączenie, następnie aby wchodzic do tego interfacu itd wpisujemy:
-w kliencie tylko piszemy - te pierwsze słowa muszą być z dużej litery, login itd moze byc małymi już!!!!!!
-KLIENT:
-LOGIN login //(obojetne jaki login moze być nawet LOGIN chuj) jest to login pod jakim bedziemy grac, finalnie do tej bazy wyników itd
-JOIN // jest to dołączenie do gry - jesli cos ci nie działa z join to moze wpisalas ze spacja, tu ma byc tylko czyste wpisane "JOIN"
-GUESS a// w miejsce a wpisujesz po protsu literke jaka chcesz zgadywac, mozesz przetestowac ale dziala tylko na jedna literke, jak zgadniesz dwie albo cyfre to ci to
-// wykryje jako blad, jesli dobrze pamietam to whcodzily i duze i male literki - nie chce mi sie sprawdzac :)))
-
-jak chcesz zamknac to ctr+c???? normalnie tak jak sie zmaykalo polaczenie, wtedy klient konczy a server nadal działa
-
-to tez przeczytaj:
-możesz uruchamiać na jednym virtualboxie, po prostu korzystaj z dwoch terminali i na jednym server na drugim klient
+Po tym powinnismy złapac połączenie, następnie wpisujemy w treminalu klienta:
+LOGIN login //login - dowolna nazwa wybrana przez uzytkownika, ktora nie jest zajeta
+JOIN //dołączenie do gry
+GUESS a//a - dowolna literka, która chcemy zgadywać
