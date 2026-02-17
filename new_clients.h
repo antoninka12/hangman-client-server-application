@@ -1,6 +1,6 @@
 #ifndef NEW_CLIENTS_H
 #define NEW_CLIENTS_H
-
+ 
 #include <stddef.h>
 
 #define MAX_CLIENTS 100
